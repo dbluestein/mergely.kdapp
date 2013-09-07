@@ -1,0 +1,22 @@
+.mergely .CodeMirror {
+    height:100%;
+}
+
+.mergely #diffHeader {
+    height: 20px;
+    margin:0;
+    padding:0;
+}
+.mergely #diffHeader div {
+    float:left;
+    background-color:#ccc;
+    white-space: nowrap;
+    overflow-x: scroll;
+}
+.mergely #diffHeader .header-lhs {
+    width:49%;
+}
+.mergely #diffHeader .header-rhs {
+    margin-left:20px;
+    width:47%;
+}

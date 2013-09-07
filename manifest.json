@@ -1,0 +1,34 @@
+{
+  "devMode": true,
+  "version": "0.1",
+  "name": "mergely",
+  "identifier": "com.koding.dbluestein.apps.mergely",
+  "authorNick": "dbluestein",
+  "path": "~/Applications/mergely.kdapp",
+  "author": "Dan Bluestein",
+  "repository": "git://github.com/dbluestein/mergely.kdapp.git",
+  "description": "Use Mergely, a javascript diff/merge utility, in Koding.",
+  "category": "web-app",
+  "source": {
+    "blocks": {
+      "app": {
+        "files": [
+          "./lib/mergely/mergely.js",
+          "./app/MergelyAppView.coffee",
+          "./app/DiffHeaderView.coffee",
+          "./index.coffee"
+        ]
+      }
+    },
+    "stylesheets": [
+      "./lib/mergely/mergely.css",
+      "./resources/style.css"
+    ]
+  },
+  "options": {
+    "type": "tab"
+  },
+  "icns": {
+    "128": "./resources/icon.128.png"
+  }
+}
