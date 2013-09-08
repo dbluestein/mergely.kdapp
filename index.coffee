@@ -1,2 +1,5 @@
+KD.enableLogs()
 do->
-  appView.addSubView new MergelyAppView
+  appInstance.openFile = (file)->mergelyAppView.openLaunchedFile(file)
+  mergelyAppView = new MergelyAppView
+  appView.addSubView mergelyAppView

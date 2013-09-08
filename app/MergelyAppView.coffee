@@ -1,44 +1,39 @@
-{nickname} = KD.whoami().profile
-
 class MergelyAppView extends JView
-  #cssClass: "mergely"
   constructor:(options = {}, data) ->
     options.cssClass = "mergely"
-    super(options)
+    super(options, data)
     
     @header = new DiffHeaderView
 
     @merge = new KDView
       domId: "merge"
-      
-    @openFile = (path)->
-        @loadFile(path, 'lhs')
     
     @header.on "DraggedItemDropped", (path, side)=>
-        @loadFile(path,side)
+        @loadFileFromPath(path,side)
+  
+  openLaunchedFile:(file)->
+      @loadFile(file, 'lhs')
 
-  loadFile:(path, side)->
-    file = FSHelper.createFileFromPath(path)
-    file.fetchContents( (err, contents)=>
-      @setDiffEditorContents(side, contents)
-      @header.setFilename(path, side)
-    )
+  loadFileFromPath:(path, side)->
+      file=FSHelper.createFileFromPath(path)
+      @loadFile(file, side)
+  
+  loadFile:(file, side)->
+      file.fetchContents( (err, contents)=>
+          @setDiffEditorContents(side, contents)
+          @header.setFilename(file.path, side)
+      )
   
   setDiffEditorContents:(side, contents)->
     $('#merge').mergely(side, contents)
-
-  loadTestFiles:(a,b)->
-    @loadFile(a, 'lhs')
-    @loadFile(b, 'rhs')
-  
   
   pistachio:->
     """
     {{> this.header}}
     {{> this.merge}}
     """
+
   viewAppended: ->
-    # @setTemplate do @pistachio
     super()
     $('#merge').mergely(
         {
