@@ -3,6 +3,8 @@ class MergelyAppView extends JView
     options.cssClass = "mergely"
     super(options, data)
     
+    @loadedFiles = {'lhs':null, 'rhs':null}
+    
     @header = new DiffHeaderView
 
     @merge = new KDView
@@ -11,8 +13,21 @@ class MergelyAppView extends JView
     @header.on "DraggedItemDropped", (path, side)=>
         @loadFileFromPath(path,side)
   
-  openLaunchedFile:(file)->
-      @loadFile(file, 'lhs')
+  """
+  Called from index.coffee when a "FileNeedsToBeOpened" event is received
+  """
+  fileOpenedFromTree:(file)->
+      console.log "mergelyAppView open file from tree:"
+      console.log file
+      if @loadedFiles.lhs == null
+        side = 'lhs'
+      else if @loadedFiles.rhs == null
+        side = 'rhs'
+      else
+        side = 'lhs'
+        # TODO: figure out how to prompt user to pick which side to use
+      console.log "Opening on " + side
+      @loadFile(file, side)
 
   loadFileFromPath:(path, side)->
       file=FSHelper.createFileFromPath(path)
@@ -22,6 +37,7 @@ class MergelyAppView extends JView
       file.fetchContents( (err, contents)=>
           @setDiffEditorContents(side, contents)
           @header.setFilename(file.path, side)
+          @loadedFiles[side] = file
       )
   
   setDiffEditorContents:(side, contents)->
