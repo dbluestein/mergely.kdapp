@@ -30,5 +30,12 @@
   },
   "icns": {
     "128": "./resources/icon.128.png"
-  }
+  },
+  "menu": [
+      {"title": "Save Changed Files", "eventName": "saveChanged"},
+      {"title": "Save Left File", "eventName": "saveLeft"},
+      {"title": "Save Left As...", "eventName": "saveLeftAs"},
+      {"title": "Save Right File", "eventName": "saveRight"},
+      {"title": "Save Right As...", "eventName": "saveRightAs"}
+  ]
 }
