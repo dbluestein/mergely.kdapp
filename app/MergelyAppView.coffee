@@ -74,14 +74,15 @@ class MergelyAppView extends JView
   saveFile:(side)->
       file = @loadedFiles[side]
       if not file
-        notify("No file to save.")
+        @notify("No file to save.")
         return
       contents = $(@MERGELY_SELECTOR).mergely('get', side)
-      file.save contents, (err, res)=>
+      file.once "fs.save.finished", (err, res)=>
           if err
             @notify "Error saving: #{err}"
             return
           @notify "Saved #{@labelForSide(side)} File"
+      file.emit "file.requests.save", contents
           
   saveFileAs:(side)->
       contents = $(@MERGELY_SELECTOR).mergely('get', side)
