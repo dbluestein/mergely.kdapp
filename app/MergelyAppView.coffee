@@ -44,8 +44,7 @@ class MergelyAppView extends JView
       appView.on "saveRightAsMenuItemClicked", =>
           console.log "save right as"
           @saveFileAs "rhs"
-          
-      
+  
   # Called from index.coffee when a "FileNeedsToBeOpened" event is received
   fileOpenedFromTree:(file)->
       console.log "mergelyAppView open file from tree:"
@@ -74,18 +73,22 @@ class MergelyAppView extends JView
   saveFile:(side)->
       file = @loadedFiles[side]
       if not file
-        @notify("No file to save.")
-        return
-      contents = $(@MERGELY_SELECTOR).mergely('get', side)
-      file.once "fs.save.finished", (err, res)=>
-          if err
-            @notify "Error saving: #{err}"
-            return
-          @notify "Saved #{@labelForSide(side)} File"
-      file.emit "file.requests.save", contents
+        @saveFileAs side
+      else
+        contents = @getDiffEditorContents side
+        
+        # callback that'll notify us when save is done
+        file.once "fs.save.finished", (err, res)=>
+            if err
+              @notify "Error saving", "#{err.message}"
+              console.log err
+            else
+              @notify "Saved #{@labelForSide(side)} File", file.path
+        # and now request the file to be saved
+        file.emit "file.requests.save", contents
           
   saveFileAs:(side)->
-      contents = $(@MERGELY_SELECTOR).mergely('get', side)
+      contents = @getDiffEditorContents side
       KD.utils.showSaveDialog appView, (input, finderController, dialog)=>
           node = finderController.treeController.selectedNodes[0]
           name = input.getValue()
@@ -95,19 +98,42 @@ class MergelyAppView extends JView
             return @notify "Select a destination directory."
           dialog.destroy()
           parentDir = node.getData()
-          file = @loadedFiles[side]
-          if not file
-            file = FSHelper.createFileFromPath "#{parentDir.path}/#{name}", "file"
-          file.emit "file.requests.saveAs", contents, name, parentDir.path
+          
+          # create a FSfile object that our file will be saved-as
+          file = FSHelper.createFileFromPath FSHelper.plainPath "#{parentDir.path}/#{name}", "file"
+          
+          ## Set up some callbacks for notifications of saving success, or error 
+          
+          # the fs.saveAs.finished handler will only execute if the file
+          # saves successfully, not if there's an error.
           file.once "fs.saveAs.finished", (newfile,oldfile)=>
               @notify "Saved #{@labelForSide(side)}", "as #{newfile.path}"
               @loadedFiles[side] = newfile
+              @header.setFilename newfile.path, "rhs"
+          
+          # the fs.save.finished will execute with a non-null error 
+          # if there's a problem saving the file (typically if the path
+          # can't be written) FSFile.saveAs() invokes FSFile.save()
+          # so we can use this here
+          file.once "fs.save.finished", (err, res)=>
+            if err
+              @notify "Error saving #{file.path}", "#{err.message}"
+              console.log err
+          
+          # And then request the file to be saved
+          # saveAs, if it's asked to save as a file that already exists,
+          # it'll append _1, _2, etc. to the filename if it's saving
+          # to a path that already exists
+          file.emit "file.requests.saveAs", contents, name, parentDir.path
 
   labelForSide:(side)->
       return {'lhs':"Left",'rhs':"Right"}[side];
   
   setDiffEditorContents:(side, contents)->
-    $('#merge').mergely(side, contents)
+    $(@MERGELY_SELECTOR).mergely side, contents 
+  
+  getDiffEditorContents:(side)->
+    $(@MERGELY_SELECTOR).mergely 'get', side
   
   pistachio:->
     """
