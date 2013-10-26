@@ -11,9 +11,22 @@ class MergelyAppView extends JView
       domId: "merge"
     
     @header.on "DraggedItemDropped", (path, side)=>
-        @loadFileFromPath(path,side)
+        @loadFileFromPath path, side
         
     @initMenuEvents()
+    
+    #handler to adjust mergely canvas on fullscreen toggle
+    KD.getSingleton("mainView").on "fullscreen", (enabled)=>
+          console.log "fullscreen toggled " + enabled
+          sel = @MERGELY_SELECTOR
+          if enabled
+              $(sel).mergely "resize"
+          else
+              # Need to hook into the event that's fired at the end of 
+              # the css transition when reducing from full-screen, so we can
+              # have the mergely editors resize properly
+              KD.getSingleton("mainView").once 'transitionend', (e)->
+                  $(sel).mergely "resize"
   
   MERGELY_SELECTOR:'#merge'
   
@@ -44,6 +57,12 @@ class MergelyAppView extends JView
       appView.on "saveRightAsMenuItemClicked", =>
           console.log "save right as"
           @saveFileAs "rhs"
+      appView.on "fullScreenMenuItemClicked", =>
+          @toggleFullscreen()
+
+  toggleFullscreen:->
+      console.log "toggle fullscreen"
+      KD.getSingleton("mainView").toggleFullscreen()
   
   # Called from index.coffee when a "FileNeedsToBeOpened" event is received
   fileOpenedFromTree:(file)->

@@ -36,6 +36,7 @@
       {"title": "Save Left File", "eventName": "saveLeft"},
       {"title": "Save Left As...", "eventName": "saveLeftAs"},
       {"title": "Save Right File", "eventName": "saveRight"},
-      {"title": "Save Right As...", "eventName": "saveRightAs"}
+      {"title": "Save Right As...", "eventName": "saveRightAs"},
+      {"title": "Toggle Fullscreen", "eventName": "fullScreen"}
   ]
 }
